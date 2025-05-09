@@ -1,13 +1,23 @@
+import { UserButton, useUser } from "@clerk/nextjs";
 import { Icon, ListTree, Menu, PackagePlus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { checkAndAddAssociation } from "../actions";
 
 const NavBar = () => {
+const {user} = useUser();
+
     const pathname = usePathname();
     const [menuOpen, setmenuOpen] = useState(false);
 
     const navLinks = [{ href: "/category", label: "Categories", icon: ListTree }];
+
+useEffect(() => {
+    if (user?.primaryEmailAddress?.emailAddress && user.fullName){
+        checkAndAddAssociation(user?.primaryEmailAddress?.emailAddress , user.fullName)
+    }
+}, [user]);
     const renderLinks = (baseClass: string) => (
         <>
             {navLinks.map(({ href, label, icon: Icon }) => {
@@ -46,6 +56,7 @@ const NavBar = () => {
 
                 <div className="hidden space-x-2 sm:flex items-center">
                     {renderLinks("btn")}
+                    <UserButton />
                 </div>
             </div>
 
@@ -54,6 +65,7 @@ const NavBar = () => {
                     }`}
             >
                 <div className="flex justify-between">
+                    <UserButton />
                     <button
                         className="btn w-fit sm: btn-sm"
                         onClick={() => setmenuOpen(!menuOpen)}
